@@ -63,13 +63,11 @@ def find_movies(movies: MovieList, founded_movies: MovieList,
             founded_movies.append(movie)
 
 
-def print_movies(movies: MovieList, numerate: bool = False):
+def print_movies(movies: MovieList):
     """Выводит фильмы на экран в красивом формате, если они существуют
 
     Args:
         movies (MovieList): Список фильмов
-        numerate (bool, optional): Булево значение, отвечающее за то,
-        будет ли список фильмов нумерован
     """
     if len(movies) == 0:
         print('Не найдено ни одного фильма!')
@@ -81,7 +79,7 @@ def print_movies(movies: MovieList, numerate: bool = False):
         minutes = movie['duration'] % 60
 
         print(f'-------- {movie['title']} --------',
-              f'Фильм №{number}' if numerate else None,
+              f'Фильм №{number}',
               f'Режиссер: {movie['director']}',
               f'Сценарист: {movie['screenwriter']}',
               f'Длительность: {hours} часов, {minutes} минут',
@@ -172,7 +170,7 @@ def remove_movie(movies: MovieList, founded_movies: MovieList):
         movies (MovieList): Список фильмов
         founded_movies (MovieList): Список найденных фильмов
     """
-    print_movies(founded_movies, numerate=True)
+    print_movies(founded_movies)
 
     if not founded_movies:
         return
