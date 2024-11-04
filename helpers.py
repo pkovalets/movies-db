@@ -8,8 +8,7 @@ def wait_for_input() -> None:
     input('Нажмите Enter чтобы продолжить...')
 
 
-def required_input(prompt: Optional[str] = '', var_type: Optional[Type] = str,
-                   **kwargs) -> Any:
+def required_input(prompt: str = '', var_type: Type = str, **kwargs) -> Any:
     """Обязательный для ввода input с расширенными опциями"""
     value_range = kwargs.get('value_range')
 
