@@ -43,7 +43,7 @@ def load_movies_from_file(movies: list[Movie], default_file_name: str) \
 
     if not loaded_movies:
         print('Файл пустой или не существует! Фильмы не были загружены.')
-        return movies, default_file_name
+        return movies, file_name
 
     print('Фильмы успешно загружены из файла!')
     return loaded_movies, file_name
@@ -192,12 +192,12 @@ def start(movies: list[Movie], filters: Filters, file_name: str) \
         return False, movies, file_name
 
     action = menu_actions[menu_option_idx]
-    if menu_option_idx == 0:
-        movies, file_name = action()
-    elif menu_option_idx == 6:
-        file_name = action()
-    else:
-        action()
+    result = action()
+
+    if isinstance(result, tuple):
+        movies, file_name = result
+    elif isinstance(result, str):
+        file_name = result
 
     wait_for_input()
     return True, movies, file_name
