@@ -13,13 +13,18 @@ def required_input(prompt: str = '', var_type: Type = str, **kwargs) -> Any:
     value_range = kwargs.get('value_range')
 
     while True:
-        try:
-            value = var_type(input(prompt))
+        user_input = input(prompt).strip()
+        if not user_input:
+            print('Ошибка! Ввод не может быть пустым.')
+            continue
 
-            if isinstance(value, str) and not value.strip():
-                continue
+        try:
+            value = var_type(user_input)
             if (value_range and
                     not value_range[0] <= value <= value_range[1]):
+                print(f'Ошибка! Введите значение в диапазоне от'
+                      f' {value_range[0]} до '
+                      f'{value_range[1]}.')
                 continue
             return value
         except ValueError:
