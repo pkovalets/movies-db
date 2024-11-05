@@ -1,13 +1,10 @@
 """База данных для хранения фильмов"""
 from uuid import uuid4
 from typing import TypedDict, Optional
-from helpers import required_input, wait_for_input, load_from_json, \
-    save_to_json
 
-DB_PATH = 'data.json'
-MENU_OPTIONS = ('Вывести найденные фильмы', 'Поиск по наименованию',
-                'Фильтровать по году выхода и продолжительности',
-                'Добавить фильм', 'Удалить фильм', 'Выход')
+from helpers import required_input, wait_for_input, load_from_json, \
+    save_to_json, file_name_input
+from config import DEFAULT_FILE_NAME, MENU_OPTIONS
 
 Movie = TypedDict('Movie', {
     'id': str,
@@ -31,7 +28,36 @@ def get_menu_option_idx() -> int:
     for num, option in enumerate(MENU_OPTIONS, start=1):
         print(f'{num}) {option}')
     print('*------------------------------*')
-    return required_input('Выберите действие: ', int, value_range=(1, 6)) - 1
+    return required_input('Выберите действие: ', int,
+                          value_range=(1, len(MENU_OPTIONS))) - 1
+
+
+def load_movies_from_file(movies: list[Movie], default_file_name: str) \
+        -> tuple[list[Movie], str]:
+    """Загружает фильмы из файла, который задает пользователь, и возвращает
+    данные вместе с именем последнего файла"""
+    file_name = file_name_input('json',
+                                f'Введите имя файла ({default_file_name}): ',
+                                default_file_name)
+    loaded_movies = load_from_json(file_name)
+
+    if not loaded_movies:
+        print('Файл пустой или не существует! Фильмы не были загружены.')
+        return movies, default_file_name
+
+    print('Фильмы успешно загружены из файла!')
+    return loaded_movies, file_name
+
+
+def save_movies_to_file(movies: list[Movie], default_file_name: str) -> str:
+    """Сохраняет фильмы в файл, который задает пользователь, и возвращает
+    имя последнего файла"""
+    file_name = file_name_input('json',
+                                f'Введите имя файла ({default_file_name}): ',
+                                default_file_name)
+    save_to_json(movies, file_name)
+    print('Фильмы успешно сохранены в файл!')
+    return file_name
 
 
 def find_movies(movies: list[Movie], filters: Filters) -> list[Movie]:
@@ -147,32 +173,40 @@ def remove_movie(movies: list[Movie], founded_movies: list[Movie]) -> None:
     print(f'Фильм {movie_to_delete['title']} успешно удален!')
 
 
-def start(filters: Filters) -> bool:
+def start(movies: list[Movie], filters: Filters, file_name: str) \
+        -> tuple[bool, list[Movie], str]:
     """Функция, отвечающая за вызов функций меню, выход из программы и
     синхронизацию данных"""
-    movies = load_from_json(DB_PATH) or []
     founded_movies = find_movies(movies, filters)
 
-    menu_actions = (lambda: print_movies(founded_movies),
+    menu_actions = (lambda: load_movies_from_file(movies, file_name),
+                    lambda: print_movies(founded_movies),
                     lambda: change_search_query(filters),
                     lambda: change_search_filters(filters),
                     lambda: add_new_movie(movies),
-                    lambda: remove_movie(movies, founded_movies))
+                    lambda: remove_movie(movies, founded_movies),
+                    lambda: save_movies_to_file(movies, file_name))
 
     menu_option_idx = get_menu_option_idx()
     if menu_option_idx == len(MENU_OPTIONS) - 1:
-        return False
+        return False, movies, file_name
 
     action = menu_actions[menu_option_idx]
-    action()
+    if menu_option_idx == 0:
+        movies, file_name = action()
+    elif menu_option_idx == 6:
+        file_name = action()
+    else:
+        action()
 
-    save_to_json(movies, DB_PATH)
     wait_for_input()
-    return True
+    return True, movies, file_name
 
 
 def main() -> None:
     """Главная функция, зацикливающая работу программы"""
+    movies: list[Movie] = []
+    file_name = DEFAULT_FILE_NAME
     is_running = True
     filters: Filters = {
         'query': '',
@@ -181,7 +215,7 @@ def main() -> None:
     }
 
     while is_running:
-        is_running = start(filters)
+        is_running, movies, file_name = start(movies, filters, file_name)
 
 
 if __name__ == '__main__':
