@@ -24,13 +24,14 @@ Filters = TypedDict('Filters', {
 })
 
 
-def get_menu_option() -> int:
-    """Показывает меню и предлагает выбор опции из него"""
+def get_menu_option_idx() -> int:
+    """Показывает меню, предлагает выбор опции из него и возвращает индекс
+    выбранного элемента"""
     print('*----------- ФИЛЬМЫ -----------*')
     for num, option in enumerate(MENU_OPTIONS, start=1):
         print(f'{num}) {option}')
     print('*------------------------------*')
-    return required_input('Выберите действие: ', int, value_range=(1, 6))
+    return required_input('Выберите действие: ', int, value_range=(1, 6)) - 1
 
 
 def find_movies(movies: list[Movie], filters: Filters) -> list[Movie]:
@@ -152,21 +153,18 @@ def start(filters: Filters) -> bool:
     movies = load_from_json(DB_PATH) or []
     founded_movies = find_movies(movies, filters)
 
-    menu_actions = {
-        1: lambda: print_movies(founded_movies),
-        2: lambda: change_search_query(filters),
-        3: lambda: change_search_filters(filters),
-        4: lambda: add_new_movie(movies),
-        5: lambda: remove_movie(movies, founded_movies)
-    }
+    menu_actions = (lambda: print_movies(founded_movies),
+                    lambda: change_search_query(filters),
+                    lambda: change_search_filters(filters),
+                    lambda: add_new_movie(movies),
+                    lambda: remove_movie(movies, founded_movies))
 
-    menu_option = get_menu_option()
-    if menu_option == len(MENU_OPTIONS):
+    menu_option_idx = get_menu_option_idx()
+    if menu_option_idx == len(MENU_OPTIONS) - 1:
         return False
 
-    action = menu_actions.get(menu_option)
-    if action:
-        action()
+    action = menu_actions[menu_option_idx]
+    action()
 
     save_to_json(movies, DB_PATH)
     wait_for_input()
