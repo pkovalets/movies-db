@@ -4,7 +4,7 @@ from typing import TypedDict, Optional
 
 from helpers import required_input, wait_for_input, load_from_json, \
     save_to_json, file_name_input
-from config import DEFAULT_FILE_NAME, MENU_OPTIONS
+from config import DEFAULT_FILE_NAME, MENU_OPTIONS, YEAR_RANGE, DURATION_RANGE
 
 Movie = TypedDict('Movie', {
     'id': str,
@@ -104,8 +104,8 @@ def change_search_query(filters: Filters) -> None:
 def change_search_filters(filters: Filters) -> None:
     """Меняет фильтры в параметрах поиска с клавиатуры"""
     options = {
-        1: ('год выхода', 'year_released', int, (1902, 2024)),
-        2: ('продолжительность (минуты)', 'duration', int, (3, 873))
+        1: ('год выхода', 'year_released', int, YEAR_RANGE),
+        2: ('продолжительность (минуты)', 'duration', int, DURATION_RANGE)
     }
     print('1) Изменить фильтр по году',
           '2) Изменить фильтр по продолжительности',
@@ -139,9 +139,9 @@ def add_new_movie(movies: list[Movie]) -> None:
     director = required_input('Введите режиссера: ').strip()
     screenwriter = required_input('Введите сценариста: ').strip()
     duration = required_input('Введите длительность (в минутах): ', int,
-                              value_range=(3, 873))
+                              value_range=DURATION_RANGE)
     year_released = required_input('Введите год выхода: ', int,
-                                   value_range=(1902, 2024))
+                                   value_range=YEAR_RANGE)
 
     new_movie: Movie = {
         'id': str(uuid4()),
