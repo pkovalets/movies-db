@@ -26,6 +26,21 @@ def required_input(prompt: str = '', var_type: Type = str, **kwargs) -> Any:
             print(f'Ошибка! Ожидался тип {var_type.__name__}.')
 
 
+def file_name_input(extension: str, prompt: str = '',
+                    default_file_name: Optional[str] = None) -> str:
+    """Input для ввода имени файла с необходимыми проверками"""
+    while True:
+        new_file_name = input(prompt).strip() or default_file_name
+
+        if not new_file_name:
+            print('Ошибка! Имя файла не может быть пустым.')
+            continue
+        if not new_file_name.endswith(f'.{extension}'):
+            print('Ошибка! Некорректное имя файла.')
+            continue
+        return new_file_name
+
+
 def load_from_json(file_path: str, default: Optional[Any] = None) -> Any:
     """Загружает данные из JSON файла и возвращает их"""
     try:
