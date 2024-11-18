@@ -103,31 +103,32 @@ def change_search_query(filters: Filters) -> None:
 
 def change_search_filters(filters: Filters) -> None:
     """Меняет фильтры в параметрах поиска с клавиатуры"""
-    options = {
-        1: ('год выхода', 'year_released', int, YEAR_RANGE),
-        2: ('продолжительность (минуты)', 'duration', int, DURATION_RANGE)
-    }
+    options = (
+        ('год выхода', 'year_released', int, YEAR_RANGE),
+        ('продолжительность (минуты)', 'duration', int, DURATION_RANGE)
+    )
     print('1) Изменить фильтр по году',
           '2) Изменить фильтр по продолжительности',
           '3) Удалить фильтр по году',
           '4) Удалить фильтр по продолжительности',
           '5) Удалить все фильтры',
           '6) Выход', sep='\n')
-    action = required_input('Выберите действие: ', int, value_range=(1, 6))
+    option_idx = required_input('Выберите действие: ', int,
+                            value_range=(1, 6)) - 1
 
-    if action in (1, 2):
-        prompt, attr, var_type, value_range = options[action]
+    if option_idx in (0, 1):
+        prompt, attr, var_type, value_range = options[option_idx]
         value = required_input(f'Введите {prompt}: ', var_type,
                                value_range=value_range)
         filters[attr] = value
-    elif action == 3:
+    elif option_idx == 2:
         filters['year_released'] = None
-    elif action == 4:
+    elif option_idx == 3:
         filters['duration'] = None
-    elif action == 5:
+    elif option_idx == 4:
         filters['year_released'] = None
         filters['duration'] = None
-    elif action == 6:
+    elif option_idx == 5:
         return
     print('Фильтры успешно изменены!')
 
